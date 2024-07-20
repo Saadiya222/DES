@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <link rel="stylesheet" href="styles.css">
+
+        <script>
+          // When the user clicks on <div>, open the popup
+          function onclick() {
+            var popup = document.getElementById("myPopup");
+            popup.classList.toggle("show");
+          }
+        </script>
+          
+      </head>
+
+<body id="particles-js"></body>
+
+<div class="animated bounceInDown" id="body">
+
+    <div class="opacity"></div>
+  <div class="container">
+
+    
+        <div class="inline">
+          <a href="Encryption1.html"><input id="alt_color" type="submit" value="Encryption" class="btn"></a>
+          <a href="Decryption1.html"><input type="submit" value="Decryption" class="btn"></a>
+        </div>
+
+
+    <form action="#" method="dialog" name="form1" class="box" onsubmit="Encryption()">
+
+      <h4>WELCOME !<br><span>To Text Encryption Tool</span></h4>
+      <h5>Enter plain text and key to be Encrypted <br><span style="color:rgb(223, 133, 133)">(The length of your plain text must equals 8 and of the key must equal 4, your input must be in english).<br><div style="position: absolute; padding-top: 40px; padding-left: 33px; color: white;">Plaintext</div></span></h5>
+
+        <input type="text" name="Plaintext" placeholder="Plaintext" id="plaintext" autocomplete="off">
+        <input type="text" name="key" placeholder="key" id="key" autocomplete="off">
+        
+        <i class="typcn typcn-eye" id="eye"></i>
+
+        <input type="submit" value="Enter" class="btn1" >
+
+      </form>
+  </div> 
+</div>
+
+<div class="footer">
+  <span>Made by <i class="fa fa-heart pulse"></i><a>Group 5</a></span>
+</div>
+
+
+
+ <div class="popup" id="popup">
+  <h3>The Encryption Has Been Done!</h3>
+  <p id="cipheredtext"></p>
+  <button type="button" class="btn" onclick="closePopup()">OK</button>
+</div>
+
+<script>
+ 
+
+
+  let popup = document.getElementById("popup");
+  let body = document.getElementById("body");
+
+  function openPopup(){
+    popup.classList.add("open-popup");
+    body.classList.add("body-state");
+  }
+
+  function closePopup(){
+    popup.classList.remove("open-popup");
+    body.classList.remove("body-state");
+  }
+
+ // function to validate English characters
+function isValidEnglish(input) {
+    return /^[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF]*$/.test(input);
+}
+
+//malicious code patterns
+var sqlInjectionRegex = /(('|"|`|\x27|\x22|\x60)[\s]*(\s*[;]|\s+--)[^']+)|(\s*[;]|\s+--)\s*('|"|`|\x27|\x22|\x60)\s*[^']+/i;
+
+ // function to validate regular Input characters
+
+function IrregularInput(code) {
+  if (sqlInjectionRegex.test(code)) {
+    // The code contains a potential SQL injection attack.
+    return true;
+  } else {
+    // The code is safe.
+    return false;
+  }
+}
+
+  function Encryption(){//method to encrypt the plain texts
+    var plaintext = document.getElementById("plaintext").value;
+    var left = plaintext.substring(0, 4);
+    var right = plaintext.substring(4, 8);
+    var key= document.getElementById("key").value;
+    var regularPlainText = IrregularInput(plaintext);
+
+    if(regularPlainText){
+      alert("Invalid input. Please try again");
+    }
+    else{
+
+    if ((plaintext.length === 8)&&(key.length===4)){
+        // Check if the input contains only English letters
+        if (isValidEnglish(plaintext)) {
+            alert("Input must consist of English letters only.");
+            return;
+        }
+
+        openPopup();
+        return document.getElementById("cipheredtext").innerHTML="Ciphered text: "+binaryToText(Round1(convertToBinaryApproach2(left),convertToBinaryApproach2(right),convertToBinaryApproach2(key)));
+
+        /*document.getElementById("cipheredtext").innerHTML = "Ciphered text: " + 
+        binaryToText(Round1(convertToBinaryApproach2(left), 
+        convertToBinaryApproach2(right), convertToBinaryApproach2(key)));*/
+        // the result that will be shown if the process succeed, calling round 1 function after converting the left and
+   // right variables into binary numbers and with key 1 =11111111 00000000 11111111 00000000
+    } else {
+        alert("Input length should be exactly 8 characters and your key length must equal 4. Please try again");
+    }
+  }
+    
+
+
+
+
+
+
+
+
+} 
+  function Round1(left,right,key){ // Round 1 function that recieves the left and right variables and the key 
+var f1=DESalgorithm(key,right); // calling the DES algorithm that recieves the key and the right 
+var x1= xoring(f1,left,f1.length); // calling xoring function with the output of the DES algorithm,the left variable , and the f1 length
+ return Round2(right,x1, keyalgorithm(key)); /* calling Round 2 function with the right variable and 
+ the output of xoring function and the key2="10101010 11111111 00110011 00000000"*/
+}
+function Round2(left,right,key){ 
+var f1=DESalgorithm(key,right);
+var x1= xoring(f1,left,f1.length);
+ return Round3(right,x1, keyalgorithm(key));
+}
+function Round3(left,right,key){
+var f1=DESalgorithm(key,right);
+var x1= xoring(f1,left,f1.length);
+var ciphertext= right+" "+x1;
+if (ciphertext.length<8){
+  ciphertext=ciphertext+" "+" "+" "+" "+" "+" "+" "+" ";
+  ciphertext=ciphertext.substring(0,8);
+}
+return ciphertext;// returning the result which is stored in cipehertext variable to be printed 
+}
+
+
+function convertToBinaryApproach2(input) { // a function that converts the texts into binary numbers 
+    let binaryResult = ''; 
+  
+    for (const char of input) { 
+        const codePoint = char.codePointAt(0); 
+        const binaryValue = codePoint.toString(2); 
+        binaryResult +=  
+            binaryValue.padStart(8, '0') + ' '; 
+    } 
+  
+    return binaryResult.trim(); 
+}
+
+function binaryToText(str) { // a function that converts the binary numbers into texts
+  let output = [];
+  str.split(" ").forEach((element) => {
+    output.push(String.fromCharCode(parseInt(element, 2)));
+  });
+  return output.join("");
+}
+
+function DESalgorithm(key,right){ // the DES algorithm 
+ var k1=key.substring(0,4);
+ var k2=key.substring(4,8);
+ var k3=key.substring(9,13);
+ var k4=key.substring(13,17);
+ var k5=key.substring(18,22);
+ var k6=key.substring(22,26);
+ var k7=key.substring(27,31);
+ var k8=key.substring(31,35);
+ var r1=right.substring(0,4);
+ var r2=right.substring(4,8);
+ var r3=right.substring(9,13);
+ var r4=right.substring(13,17);
+ var r5=right.substring(18,22);
+ var r6=right.substring(22,26);
+ var r7=right.substring(27,31);
+ var r8=right.substring(31,35);
+ var result1= r1.concat(k2);
+ var result2=k3.concat(r4);
+ var result3=r5.concat(k6);
+ var result4=k7.concat(r8);
+var fresult=result1+" "+result2+" "+result3+" "+result4; 
+ return fresult; // the output of the DES algorithm 
+}
+
+function xoring(a, b, n){ // the xoring function that recieves two binary numbers and the length 
+let ans = "";
+     
+    // Loop to iterate over the
+    // Binary Strings
+    for (let i = 0; i < n; i++)
+    {
+        // If the Character matches
+        if(a[i]==" " && b[i]==" "){
+        continue;}
+        if (a[i] == b[i])
+            ans += "0";
+        else
+            ans += "1";
+    }
+    ans1=ans.substring(0,8);
+    ans2=ans.substring(8,16);
+    ans3=ans.substring(16,24);
+    ans4=ans.substring(24,32);
+    fans=ans1+" "+ans2+" "+ans3+" "+ans4;
+    return fans; // the output of the xoring function
+}
+
+function keyalgorithm(key){
+var k1=key.substring(0,4);
+ var k2=key.substring(4,8);
+ var k3=key.substring(9,13);
+ var k4=key.substring(13,17);
+ var k5=key.substring(18,22);
+ var k6=key.substring(22,26);
+ var k7=key.substring(27,31);
+ var k8=key.substring(31,35);
+ var key=k1+k5+" "+k2+k6+" "+k3+k7+" "+k4+k8;
+ return key;
+}
+
+
+</script>
+
+</html>
